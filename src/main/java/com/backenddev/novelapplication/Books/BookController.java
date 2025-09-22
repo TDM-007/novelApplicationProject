@@ -14,7 +14,7 @@ import java.awt.print.Book;
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
+@RequestMapping("api/v1/books")
 public class BookController {
 
     private BookService service;
@@ -53,6 +53,31 @@ public class BookController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/updateBook/{title}")
+    public ResponseEntity<?> updateBook(@PathVariable String title,
+                                        @RequestPart("book") Books book,
+                                        @RequestPart("pdf") MultipartFile pdf,
+                                        @RequestPart("image") MultipartFile image){
+        try {
+            service.updateBook(title,book, pdf, image);
+            return new ResponseEntity<>("Book updated successfully", HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>("failed to create data base", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("deleteBook/{title}")
+    public ResponseEntity<?> deleteBook(@PathVariable String title){
+        try {
+            service.deleteBook(title);
+            return new ResponseEntity<>( "book deleted successfully", HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>("failed to delete book", HttpStatus.BAD_REQUEST);
         }
     }
 

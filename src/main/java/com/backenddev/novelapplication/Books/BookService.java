@@ -1,5 +1,7 @@
 package com.backenddev.novelapplication.Books;
 
+import com.backenddev.novelapplication.dtos.BookRequestDto;
+import com.backenddev.novelapplication.execption.ApiNotFoundException;
 import com.backenddev.novelapplication.execption.BadRequestException;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
@@ -68,5 +70,43 @@ public class BookService {
         }
 
         return repo.getByTitle(title);
+    }
+
+    public void updateBook(String title, Books book, MultipartFile pdf, MultipartFile image) {
+        //search the database for a book first.
+        Books foundBook = repo.getByTitle(title);
+        //check if the title is null
+        if (title.isEmpty()) {
+            throw new BadRequestException("title cannot be empty");
+        }
+        //check if the book exist in the database.
+        if (repo.existsByTitle(title)) {
+            //convert the files to pdf
+            try {
+                foundBook.setPdfContent(pdf.getBytes());
+                foundBook.setBookImage(image.getBytes());
+            }catch (Exception e){
+                throw new BadRequestException("file type not supported");
+            }
+            // update the found book to the new book.
+            foundBook.setPdfContent(book.getPdfContent());
+            foundBook.setBookImage(book.getBookImage());
+
+            //save the updated books
+            Books updatedBook = repo.save(foundBook);
+
+        }
+        // other possibilities.
+        throw new ApiNotFoundException("unable to update book");
+    }
+
+    public void deleteBook(String title) {
+        if (title == null || title.equals("")) {
+            throw new BadRequestException("title cannot be empty");
+        }
+        if (repo.existsByTitle(title)) {
+            repo.deleteByTitle(title);
+        }
+        throw new BadRequestException("unable to delete book");
     }
 }

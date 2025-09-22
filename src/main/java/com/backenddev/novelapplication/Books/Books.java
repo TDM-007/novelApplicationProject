@@ -23,7 +23,6 @@ public class Books {
     @Column
     private Long ISBN;
 
-    @Column (nullable = false)
     private String author;
 
     @Column(nullable = false)

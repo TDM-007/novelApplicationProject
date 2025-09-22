@@ -1,9 +1,12 @@
 package com.backenddev.novelapplication.dtos;
 
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoginDto {
 //    @NotNull(message = "passowrd required")
     private  String password;

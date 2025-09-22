@@ -1,13 +1,20 @@
 package com.backenddev.novelapplication.user.service;
 
+
+import com.backenddev.novelapplication.auth.service.JWTService;
 import com.backenddev.novelapplication.dtos.ReadingProgressDto;
-import com.backenddev.novelapplication.dtos.UserDto;
+import com.backenddev.novelapplication.dtos.UserRequestDto;
 import com.backenddev.novelapplication.execption.ApiNotFoundException;
+import com.backenddev.novelapplication.execption.BadRequestException;
 import com.backenddev.novelapplication.execption.UserNotFoundException;
 import com.backenddev.novelapplication.user.entity.ReadingProgress;
 import com.backenddev.novelapplication.user.entity.User;
 import com.backenddev.novelapplication.user.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,9 +23,17 @@ import java.util.List;
 public class UserService {
 
     private UserRepository repo;
+    //this is so we encode the password.
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
     @Autowired
-    public UserService(UserRepository repo) {
+    AuthenticationManager authManager;
+
+    private JWTService jwtService;
+
+    @Autowired
+    public UserService(UserRepository repo, JWTService jwtService) {
         this.repo = repo;
+        this.jwtService = jwtService;
     }
 
 
@@ -35,7 +50,10 @@ public class UserService {
 
     }
 
-    public void registerNewUser(UserDto userDto) {
+    public void registerNewUser(UserRequestDto userDto) {
+
+        //encoding the password so no one else will know it except the user.
+        userDto.setPassword(encoder.encode(userDto.getPassword()));
         if (repo.existsByUserName(userDto.getUserName())){
             throw new ApiNotFoundException("userName already exists");
         }
@@ -52,18 +70,23 @@ public class UserService {
 
     }
 
-    public User updateUser(String userName, UserDto user) {
+    public User updateUser(String userName, UserRequestDto dto) {
+        //find the user in the repo
         User foundUser = repo.findByUserName(userName);
 
-        UserDto dto = new UserDto();
+        //map the userDto the user entity
         foundUser.setUserName(dto.getUserName());
         foundUser.setPassword(dto.getPassword());
         foundUser.setProfilePicUrl(dto.getProfilePicUrl());
+        //save the found user to the database.
         return repo.save(foundUser);
 
     }
 
     public void deleteUser(String userName) {
+        if (userName == null || userName.equals("")) {
+            throw new BadRequestException("userName cannot be empty");
+        }
         if (repo.existsByUserName(userName)) {
             repo.deleteByUserName(userName);
         }
@@ -75,21 +98,20 @@ public class UserService {
         return null;
     }
 
-//    public ReadingProgress updateReadingProgress(Long userId, ReadingProgressDto progress) {
-//        User user = getUserById(userId);
-//        Optional<ReadingProgress> existingProgress = readingProgressRepository
-//                .findByUserIdAndSeriesId(userId, progressDTO.getSeriesId());
-//
-//        ReadingProgress progress;
-//        if (existingProgress.isPresent()) {
-//            progress = existingProgress.get();
-//            progress.setLastEpisodeRead(progressDTO.getLastEpisodeRead());
-//        } else {
-//            progress = new ReadingProgress();
-//            progress.setUser(user);
-//            progress.setSeriesId(progressDTO.getSeriesId());
-//            progress.setLastEpisodeRead(progressDTO.getLastEpisodeRead());
-//        }
-//        return readingProgressRepository.save(progress);
-//    }
+    //verify if users are authenticated.
+    public String verifyUserLogin( User user) {
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword())
+        );
+
+        if (repo.existsByUserName(user.getUserName())) {
+              if(authentication.isAuthenticated()){
+                 return jwtService.generateToken(user.getUserName());
+              }
+                throw new UserNotFoundException("failed to authenticate user.");
+
+        }
+        throw new BadRequestException("user doesn't exist");
+    }
+
 }

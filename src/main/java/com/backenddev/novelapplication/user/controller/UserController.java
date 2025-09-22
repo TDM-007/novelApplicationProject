@@ -1,7 +1,7 @@
 package com.backenddev.novelapplication.user.controller;
 
 import com.backenddev.novelapplication.dtos.ReadingProgressDto;
-import com.backenddev.novelapplication.dtos.UserDto;
+import com.backenddev.novelapplication.dtos.UserRequestDto;
 import com.backenddev.novelapplication.execption.UserNotFoundException;
 import com.backenddev.novelapplication.user.entity.ReadingProgress;
 import com.backenddev.novelapplication.user.entity.User;
@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +19,9 @@ import java.util.List;
 
 @Controller
 @RestController
-@RequestMapping("/user")
+@RequestMapping("api/v1/user")
 public class UserController {
+
 
     private final UserService service;
 
@@ -34,7 +36,7 @@ public class UserController {
         return new ResponseEntity<>( service.getAllUsers(), HttpStatus.OK);
     }
 
-    @GetMapping("/getUsersByName/{userName}")
+    @GetMapping("/{userName}")
     public ResponseEntity<?> getUsersByName(@PathVariable String userName) {
         try {
             return new ResponseEntity<>(service.getUsersByName(userName), HttpStatus.OK);
@@ -43,19 +45,8 @@ public class UserController {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerNewUser(@Valid @RequestBody UserDto userDto) {
-        try {
-            service.registerNewUser(userDto);
-        return new ResponseEntity<>("user registered successfully", HttpStatus.OK);
-        }catch (Exception e){
-            e.printStackTrace();
-            return new ResponseEntity<>("failed to register user", HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PutMapping("/updtadeUser/{userName}")
-    public ResponseEntity<?> updateUser(@RequestParam String userName, @RequestBody UserDto user) {
+    @PutMapping("/updateUser/{userName}")
+    public ResponseEntity<?> updateUser(@RequestParam String userName, @RequestBody UserRequestDto user) {
         try{
             service.updateUser(userName, user);
             return new ResponseEntity<>( "User updated", HttpStatus.OK);

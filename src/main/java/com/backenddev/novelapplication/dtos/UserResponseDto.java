@@ -12,7 +12,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
+//foe get mapping.
+public class UserResponseDto {
     private String username;
     private UserRole role;
     private String profilePicUrl;
