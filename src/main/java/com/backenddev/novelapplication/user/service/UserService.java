@@ -50,25 +50,6 @@ public class UserService {
 
     }
 
-    public void registerNewUser(UserRequestDto userDto) {
-
-        //encoding the password so no one else will know it except the user.
-        userDto.setPassword(encoder.encode(userDto.getPassword()));
-        if (repo.existsByUserName(userDto.getUserName())){
-            throw new ApiNotFoundException("userName already exists");
-        }
-//        if (repo.existsByEmail(userDto.getEmail())){
-//            throw new ApiNotFoundException("email already exists");
-//        }
-
-        User user = new User();
-        user.setUserName(userDto.getUserName());
-        user.setPassword(userDto.getPassword());
-        user.setProfilePicUrl(userDto.getProfilePicUrl());
-        user.setRole(userDto.getRole());
-        repo.save(user);
-
-    }
 
     public User updateUser(String userName, UserRequestDto dto) {
         //find the user in the repo
@@ -106,7 +87,7 @@ public class UserService {
 
         if (repo.existsByUserName(user.getUserName())) {
               if(authentication.isAuthenticated()){
-                 return jwtService.generateToken(user.getUserName());
+                  return jwtService.generateToken(user.getUserName());// .generates token embeds the username and optional claims.
               }
                 throw new UserNotFoundException("failed to authenticate user.");
 
@@ -114,4 +95,24 @@ public class UserService {
         throw new BadRequestException("user doesn't exist");
     }
 
+    //Register a new user
+    public void registerNewUser(UserRequestDto userDto) {
+
+        //encoding the password so no one else will know it except the user.
+        userDto.setPassword(encoder.encode(userDto.getPassword()));
+        if (repo.existsByUserName(userDto.getUserName())){
+            throw new ApiNotFoundException("userName already exists");
+        }
+//        if (repo.existsByEmail(userDto.getEmail())){
+//            throw new ApiNotFoundException("email already exists");
+//        }
+
+        User user = new User();
+        user.setUserName(userDto.getUserName());
+        user.setPassword(userDto.getPassword());
+        user.setProfilePicUrl(userDto.getProfilePicUrl());
+        user.setRole(userDto.getRole());
+        repo.save(user);
+
+    }
 }

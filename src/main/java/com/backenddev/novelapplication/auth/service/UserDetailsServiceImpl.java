@@ -16,15 +16,16 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 
-    final UserRepository userRepo;
+    @Autowired
+    private final UserRepository userRepo;
 
     public UserDetailsServiceImpl (UserRepository userRepo) {
         this.userRepo = userRepo;
     }
 
-    // loadUserByUserName;
-    // it is used to retrieve user details from the database based on provided username during the authentication process.
-    //this basically fetches user data for authentication.
+    /** loadUserByUserName;
+      it is used to retrieve user details from the database based on provided username during the authentication process.
+     this basically fetches user data for authentication.**/
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
