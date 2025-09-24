@@ -2,6 +2,9 @@ package com.backenddev.novelapplication.auth.filter;
 
 import com.backenddev.novelapplication.auth.service.JWTService;
 import com.backenddev.novelapplication.auth.service.UserDetailsServiceImpl;
+import com.backenddev.novelapplication.execption.TokenInvalidException;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * this intercepts request and validates tokens and set security context
+ * validate tokens in incoming requests
  * **/
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -31,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     /**
-     * **/
+     * processes each request, extracts and validates JWT, sets authentication if valid **/
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String authorizationHeader = request.getHeader("Authorization");
@@ -53,8 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
-            }catch (Exception e) {
-                throw new UsernameNotFoundException("Invalid token", e);
+            }catch (JwtException e) {
+                throw new TokenInvalidException("Invalid token or token could be expired", e);
             }
         }
         filterChain.doFilter(request, response);

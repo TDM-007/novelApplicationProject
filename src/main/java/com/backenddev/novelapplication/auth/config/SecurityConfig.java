@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * security configuration to set up authentication and authorization rules
+ * **/
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig{
@@ -66,6 +69,9 @@ public class SecurityConfig{
         return provider;
     }
 
+    /**
+     * configures the authentication manager for credential verification
+     * **/
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)throws Exception {
         return config.getAuthenticationManager();

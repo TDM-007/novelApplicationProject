@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-//USER DETAILS SERVICE;
-//
+
+/**
+ * loads users from the database for authentication
+ * **/
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -23,10 +25,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.userRepo = userRepo;
     }
 
-    /** loadUserByUserName;
-      it is used to retrieve user details from the database based on provided username during the authentication process.
-     this basically fetches user data for authentication.**/
 
+    //loads user by userName for authentication
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findByUserName(username);

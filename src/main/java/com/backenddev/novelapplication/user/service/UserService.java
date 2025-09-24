@@ -23,8 +23,10 @@ import java.util.List;
 public class UserService {
 
     private UserRepository repo;
+
     //this is so we encode the password.
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
     @Autowired
     AuthenticationManager authManager;
 
@@ -95,7 +97,8 @@ public class UserService {
         throw new BadRequestException("user doesn't exist");
     }
 
-    //Register a new user
+    /**
+     * register new users, and encoding their passwords **/
     public void registerNewUser(UserRequestDto userDto) {
 
         //encoding the password so no one else will know it except the user.

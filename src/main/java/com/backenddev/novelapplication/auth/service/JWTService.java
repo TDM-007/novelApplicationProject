@@ -24,7 +24,7 @@ public class JWTService {
 
     private String secretKey;
 
-    //key generator.
+    /**generates token**/
     public JWTService() {
         try {
             KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
@@ -37,7 +37,8 @@ public class JWTService {
 
 
 
-    // generate jwt token.
+    /**generate a jwt token for a given username, embedding claims and expiration**/
+
     public String generateToken(String userName) {
 
         Map<String, Object> claims = new HashMap<String, Object>();// extra claims , put("role", "User")
@@ -55,7 +56,6 @@ public class JWTService {
     }
 
     //get the generated key
-
     private Key getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -65,6 +65,7 @@ public class JWTService {
         return extractAllClaims(jwtToken).getSubject();
     }
 
+    /** extract username from a token **/
     private Claims extractAllClaims(String jwtToken) {
         return Jwts.parser()
                 .verifyWith((SecretKey) getKey())
@@ -73,6 +74,7 @@ public class JWTService {
                 .getPayload();
     }
 
+    /** parses and verfies the jwt token **/
    public boolean isTheTokenValid(String jwtToken, UserDetails userDetails) {
         final String userName = extractUserName(jwtToken);
         return (userName.equals(userDetails.getUsername()));
@@ -84,5 +86,5 @@ public class JWTService {
 
     private Date extractExpiration(String jwtToken) {
         return extractAllClaims(jwtToken).getExpiration();
-    }
+       }
 }
